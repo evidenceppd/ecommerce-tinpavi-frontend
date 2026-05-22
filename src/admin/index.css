@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Aristotelica Pro Display */
+@font-face {
+  font-family: 'Aristotelica Pro Display';
+  src: url('/fonts/AristotelicaProDisp-Hln.otf') format('opentype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aristotelica Pro Display';
+  src: url('/fonts/AristotelicaProDisp-Th.otf') format('opentype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aristotelica Pro Display';
+  src: url('/fonts/AristotelicaProDisp-Lt.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aristotelica Pro Display';
+  src: url('/fonts/AristotelicaProDisp-Rg.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aristotelica Pro Display';
+  src: url('/fonts/AristotelicaProDisp-Dmbld.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aristotelica Pro Display';
+  src: url('/fonts/AristotelicaProDisp-Bld.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aristotelica Pro Display';
+  src: url('/fonts/AristotelicaProDisp-Hv.otf') format('opentype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aristotelica Pro Display';
+  src: url('/fonts/AristotelicaProDisp-Ft.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Aristotelica Pro Text */
+@font-face {
+  font-family: 'Aristotelica Pro Text';
+  src: url('/fonts/Zetafonts - Aristotelica Pro Text Extralight.otf') format('opentype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Aristotelica Pro Display', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+  background-color: #0A0A0A;
+}
+
+p {
+  font-family: 'Aristotelica Pro Text', sans-serif;
+  font-weight: 200;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #111;
+}
+::-webkit-scrollbar-thumb {
+  background: #C49B3C;
+  border-radius: 2px;
+}

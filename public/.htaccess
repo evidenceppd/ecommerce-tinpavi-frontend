@@ -1,0 +1,14 @@
+AddDefaultCharset UTF-8
+AddCharset UTF-8 .html .css .js .json .txt .xml
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Keep direct access to existing files only (not directories)
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+
+  # SPA fallback for React Router routes (/admin, /blog/123, etc)
+  RewriteRule ^ index.html [L]
+</IfModule>

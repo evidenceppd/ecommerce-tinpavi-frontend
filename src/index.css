@@ -1,0 +1,229 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --container-8xl: 81.25rem; /* 1300px */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a, button, [role="button"], label[for], select, input[type="checkbox"], input[type="radio"], input[type="submit"], input[type="button"] {
+  cursor: pointer;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  margin: 0;
+}
+
+.prose-content {
+  color: #1f2937;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.prose-content h2 {
+  color: #030712;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.2;
+  margin: 2rem 0 0.75rem;
+}
+
+.prose-content p {
+  margin: 0 0 1rem;
+}
+
+.prose-content ul {
+  list-style: disc;
+  margin: 0 0 1.25rem 1.25rem;
+  padding: 0;
+}
+
+.prose-content li {
+  margin: 0.35rem 0;
+}
+
+.announcement-marquee {
+  animation: announcement-marquee 18s linear infinite;
+}
+
+.freight-modal-enter {
+  animation: freight-modal-enter 180ms ease-out both;
+}
+
+.freight-modal-exit {
+  animation: freight-modal-exit 180ms ease-in both;
+}
+
+.cart-drawer-enter {
+  animation: cart-drawer-enter 220ms ease-out both;
+}
+
+.cart-drawer-exit {
+  animation: cart-drawer-exit 220ms ease-in both;
+}
+
+.cart-backdrop-enter {
+  animation: cart-backdrop-enter 220ms ease-out both;
+}
+
+.cart-backdrop-exit {
+  animation: cart-backdrop-exit 220ms ease-in both;
+}
+
+.payment-modal-enter {
+  animation: payment-modal-enter 180ms ease-out both;
+}
+
+.payment-modal-exit {
+  animation: payment-modal-exit 180ms ease-in both;
+}
+
+.payment-backdrop-enter {
+  animation: payment-backdrop-enter 180ms ease-out both;
+}
+
+.payment-backdrop-exit {
+  animation: payment-backdrop-exit 180ms ease-in both;
+}
+
+@keyframes announcement-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - 1rem));
+  }
+}
+
+@keyframes cart-drawer-enter {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes cart-drawer-exit {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes cart-backdrop-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cart-backdrop-exit {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes payment-modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes payment-modal-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+}
+
+@keyframes payment-backdrop-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes payment-backdrop-exit {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes freight-modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes freight-modal-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+}
+
+@media (min-width: 640px) {
+  .announcement-marquee {
+    animation: none;
+    transform: none;
+  }
+}

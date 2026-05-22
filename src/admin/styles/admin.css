@@ -1,0 +1,149 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
+
+/* Admin Panel - tema claro branco com amarelo da identidade Tinpavi */
+body:has(.admin-panel),
+html:has(.admin-panel) {
+  background-color: #F6F7F9 !important;
+}
+
+html.dark:has(.admin-panel),
+html.dark body:has(.admin-panel) {
+  background-color: #0A0A0A !important;
+}
+
+/* Modo escuro */
+html.dark .admin-panel { background-color: #0A0A0A !important; }
+html.dark .admin-panel .bg-gray-50 { background-color: #0A0A0A !important; }
+html.dark .admin-panel .bg-white { background-color: #111111 !important; }
+html.dark .admin-panel .bg-gray-800 { background-color: #111111 !important; }
+html.dark .admin-panel .bg-gray-100 { background-color: #1A1A1A !important; }
+html.dark .admin-panel .bg-gray-200 { background-color: #1A1A1A !important; }
+
+html.dark .admin-panel .text-gray-900 { color: #F2EDE3 !important; }
+html.dark .admin-panel .text-gray-800 { color: rgba(242, 237, 227, 0.92) !important; }
+html.dark .admin-panel .text-gray-700 { color: rgba(242, 237, 227, 0.80) !important; }
+html.dark .admin-panel .text-gray-600 { color: rgba(242, 237, 227, 0.58) !important; }
+html.dark .admin-panel .text-gray-500 { color: rgba(242, 237, 227, 0.45) !important; }
+html.dark .admin-panel .text-gray-400 { color: rgba(242, 237, 227, 0.35) !important; }
+html.dark .admin-panel .text-black { color: #F2EDE3 !important; }
+
+html.dark .admin-panel .border-gray-100 { border-color: rgba(245, 197, 24, 0.10) !important; }
+html.dark .admin-panel .border-gray-200 { border-color: rgba(245, 197, 24, 0.14) !important; }
+html.dark .admin-panel .border-gray-700,
+html.dark .admin-panel .border-gray-600 { border-color: rgba(245, 197, 24, 0.15) !important; }
+html.dark .admin-panel .divide-gray-100 > * + *,
+html.dark .admin-panel .divide-gray-200 > * + * { border-color: rgba(245, 197, 24, 0.10) !important; }
+
+html.dark .admin-panel input:not([type="radio"]):not([type="checkbox"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="range"]),
+html.dark .admin-panel textarea,
+html.dark .admin-panel select {
+  background-color: #1A1A1A !important;
+  color: #F2EDE3 !important;
+  border-color: rgba(245, 197, 24, 0.22) !important;
+}
+
+html.dark .admin-panel input::placeholder,
+html.dark .admin-panel textarea::placeholder { color: rgba(242, 237, 227, 0.35) !important; }
+
+html.dark .admin-panel .hover\:bg-gray-50:hover,
+html.dark .admin-panel .hover\:bg-gray-100:hover { background-color: rgba(245, 197, 24, 0.06) !important; }
+html.dark .admin-panel .hover\:bg-gray-700:hover,
+html.dark .admin-panel .hover\:bg-gray-800:hover { background-color: rgba(245, 197, 24, 0.08) !important; }
+
+/* Modo claro (padrao) - creme quente + dourado */
+html:not(.dark) .admin-panel {
+  background-color: #F6F7F9 !important;
+  color: #0F172A !important;
+}
+
+html:not(.dark) .admin-panel .bg-gray-50 { background-color: #F6F7F9 !important; }
+html:not(.dark) .admin-panel .bg-white { background-color: #FFFFFF !important; }
+html:not(.dark) .admin-panel .bg-gray-800,
+html:not(.dark) .admin-panel .bg-gray-900 { background-color: #FFFFFF !important; }
+html:not(.dark) .admin-panel .bg-gray-700 { background-color: #F1F5F9 !important; }
+html:not(.dark) .admin-panel .bg-gray-600 { background-color: #E2E8F0 !important; }
+html:not(.dark) .admin-panel .bg-gray-100 { background-color: #F1F5F9 !important; }
+html:not(.dark) .admin-panel .bg-gray-200 { background-color: #E2E8F0 !important; }
+
+html:not(.dark) .admin-panel .text-gray-900 { color: #0F172A !important; }
+html:not(.dark) .admin-panel .text-gray-800 { color: #1E293B !important; }
+html:not(.dark) .admin-panel .text-gray-700 { color: #334155 !important; }
+html:not(.dark) .admin-panel .text-gray-600 { color: #475569 !important; }
+html:not(.dark) .admin-panel .text-gray-500 { color: #64748B !important; }
+html:not(.dark) .admin-panel .text-gray-400 { color: #94A3B8 !important; }
+html:not(.dark) .admin-panel .text-gray-300,
+html:not(.dark) .admin-panel .text-gray-200,
+html:not(.dark) .admin-panel .text-gray-100 { color: #999999 !important; }
+html:not(.dark) .admin-panel .text-black { color: #0F172A !important; }
+
+html:not(.dark) .admin-panel .border-gray-700,
+html:not(.dark) .admin-panel .border-gray-600 { border-color: rgba(245, 197, 24, 0.18) !important; }
+html:not(.dark) .admin-panel .border-gray-100,
+html:not(.dark) .admin-panel .border-gray-200 { border-color: rgba(245, 197, 24, 0.14) !important; }
+html:not(.dark) .admin-panel .divide-gray-100 > * + *,
+html:not(.dark) .admin-panel .divide-gray-200 > * + * { border-color: rgba(245, 197, 24, 0.14) !important; }
+
+html:not(.dark) .admin-panel input:not([type="radio"]):not([type="checkbox"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="range"]),
+html:not(.dark) .admin-panel textarea,
+html:not(.dark) .admin-panel select {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+}
+
+html:not(.dark) .admin-panel input::placeholder,
+html:not(.dark) .admin-panel textarea::placeholder { color: #94A3B8 !important; }
+
+html:not(.dark) .admin-panel .hover\:bg-gray-700:hover,
+html:not(.dark) .admin-panel .hover\:bg-gray-800:hover { background-color: rgba(245, 197, 24, 0.07) !important; }
+html:not(.dark) .admin-panel .hover\:bg-gray-50:hover,
+html:not(.dark) .admin-panel .hover\:bg-gray-100:hover { background-color: rgba(245, 197, 24, 0.06) !important; }
+
+html:not(.dark) .admin-panel .shadow-sm {
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
+}
+
+/* Fonte - Figtree (Google Fonts) exclusiva do painel admin */
+.admin-panel,
+.admin-panel * {
+  font-family: 'Figtree', sans-serif;
+}
+
+/* Preserva quebras de linha em campos de texto do admin */
+.admin-panel .admin-preview-surface p,
+.admin-panel .admin-preview-surface li {
+  white-space: pre-line;
+}
+
+/* Animacao do submenu */
+.submenu-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.submenu-wrapper.open {
+  grid-template-rows: 1fr;
+}
+
+.submenu-content {
+  overflow: hidden;
+}
+
+/* Helpers responsivos */
+@media (max-width: 1023px) {
+  .admin-panel .admin-mobile-section {
+    padding: 1rem;
+  }
+
+  .admin-panel .admin-preview-surface {
+    width: 100%;
+    max-width: 390px;
+    margin-inline: auto;
+  }
+
+  .admin-panel .admin-preview-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

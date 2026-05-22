@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "esnext",
+    "types": ["vite/client"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"],
+  "exclude": [
+    "src/admin/test",
+    "src/admin/services/__tests__",
+    "src/admin/pages/BlogPage.tsx",
+    "src/admin/pages/BlogPostPage.tsx",
+    "src/admin/pages/ProcedimentosPage.tsx",
+    "src/admin/components/About.tsx",
+    "src/admin/components/Blog.tsx",
+    "src/admin/components/Footer.tsx",
+    "src/admin/components/Hero.tsx",
+    "src/admin/components/Navbar.tsx",
+    "src/admin/components/Procedures.tsx",
+    "src/admin/components/Team.tsx",
+    "src/admin/App.tsx",
+    "src/admin/main.tsx"
+  ]
+}
