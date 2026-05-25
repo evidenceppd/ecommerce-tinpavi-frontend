@@ -151,8 +151,6 @@ function formatTopPageLabel(path: string): string {
 function LoginForm({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
-  const [verificationCode, setVerificationCode] = useState('')
-  const [mfaChallenge, setMfaChallenge] = useState<{ id: string; emailMasked: string } | null>(null)
   const [show, setShow] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -160,12 +158,6 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
     e.preventDefault()
     setLoading(true)
     try {
-      if (mfaChallenge) {
-        // MFA desativada no fluxo de login administrativo.
-        setMfaChallenge(null)
-        setVerificationCode('')
-      }
-
       await authService.login(email, senha)
       onLogin()
     } catch (err: unknown) {
@@ -227,86 +219,57 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
                   </div>
                 </div>
                 <p className="mt-3 text-sm text-slate-500">
-                  {mfaChallenge ? `Digite o codigo enviado para ${mfaChallenge.emailMasked}.` : 'Use sua conta administrativa para gerenciar o e-commerce.'}
+                  Use sua conta administrativa para gerenciar o e-commerce.
                 </p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5 px-7 py-6">
-                {mfaChallenge ? (
-                  <div>
-                    <label className="mb-1.5 block text-sm font-bold text-slate-700">Codigo de verificação</label>
+                <div>
+                  <label className="mb-1.5 block text-sm font-bold text-slate-700">E-mail</label>
+                  <div className="relative">
+                    <Mail size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
-                      inputMode="numeric"
-                      maxLength={6}
+                      type="email"
                       required
-                      value={verificationCode}
-                      onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
-                      className="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-center font-mono text-xl tracking-[0.35em] text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#f5c518] focus:ring-4 focus:ring-[#f5c518]/20"
-                      placeholder="000000"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      className="h-12 w-full rounded-xl border border-slate-300 bg-white px-10 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#f5c518] focus:ring-4 focus:ring-[#f5c518]/20"
+                      placeholder="master@tinpavi.local"
                     />
                   </div>
-                ) : (
-                  <>
-                    <div>
-                      <label className="mb-1.5 block text-sm font-bold text-slate-700">E-mail</label>
-                      <div className="relative">
-                        <Mail size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input
-                          type="email"
-                          required
-                          value={email}
-                          onChange={e => setEmail(e.target.value)}
-                          className="h-12 w-full rounded-xl border border-slate-300 bg-white px-10 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#f5c518] focus:ring-4 focus:ring-[#f5c518]/20"
-                          placeholder="master@tinpavi.local"
-                        />
-                      </div>
-                    </div>
+                </div>
 
-                    <div>
-                      <label className="mb-1.5 block text-sm font-bold text-slate-700">Senha</label>
-                      <div className="relative">
-                        <LockKeyhole size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input
-                          type={show ? 'text' : 'password'}
-                          required
-                          value={senha}
-                          onChange={e => setSenha(e.target.value)}
-                          className="h-12 w-full rounded-xl border border-slate-300 bg-white px-10 pr-12 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#f5c518] focus:ring-4 focus:ring-[#f5c518]/20"
-                          placeholder="Digite sua senha"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShow(v => !v)}
-                          className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
-                          aria-label={show ? 'Ocultar senha' : 'Mostrar senha'}
-                        >
-                          {show ? <EyeOff size={17} /> : <Eye size={17} />}
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
+                <div>
+                  <label className="mb-1.5 block text-sm font-bold text-slate-700">Senha</label>
+                  <div className="relative">
+                    <LockKeyhole size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type={show ? 'text' : 'password'}
+                      required
+                      value={senha}
+                      onChange={e => setSenha(e.target.value)}
+                      className="h-12 w-full rounded-xl border border-slate-300 bg-white px-10 pr-12 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#f5c518] focus:ring-4 focus:ring-[#f5c518]/20"
+                      placeholder="Digite sua senha"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShow(v => !v)}
+                      className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
+                      aria-label={show ? 'Ocultar senha' : 'Mostrar senha'}
+                    >
+                      {show ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
+                  </div>
+                </div>
 
                 <button
                   type="submit"
-                  disabled={loading || Boolean(mfaChallenge && verificationCode.length !== 6)}
+                  disabled={loading}
                   className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#f5c518] text-sm font-black text-slate-950 transition hover:bg-[#e0b614] focus:outline-none focus:ring-4 focus:ring-[#f5c518]/30 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
                 >
                   <LogIn size={18} />
-                  {loading ? 'Verificando...' : mfaChallenge ? 'Verificar e entrar' : 'Entrar'}
+                  {loading ? 'Verificando...' : 'Entrar'}
                 </button>
-                {mfaChallenge && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMfaChallenge(null)
-                      setVerificationCode('')
-                    }}
-                    className="w-full text-center text-sm font-semibold text-slate-500 transition hover:text-slate-900 cursor-pointer"
-                  >
-                    Voltar para login
-                  </button>
-                )}
               </form>
 
               <div className="border-t border-slate-100 bg-slate-50 px-7 py-4">
