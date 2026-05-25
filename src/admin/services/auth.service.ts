@@ -104,10 +104,7 @@ export const authService = {
     const response = await api.post<LoginApiResponse>('/auth/login', { email, password: senha })
 
     if (response.mfaRequired) {
-      if (!response.challengeId) {
-        throw { response: { data: { error: 'Resposta de login invalida' } } }
-      }
-      return authService.verifyAdminMfa(response.challengeId)
+      throw { response: { data: { error: 'O backend ainda esta exigindo MFA no /admin. Publique/reinicie o backend atualizado.' } } }
     }
 
     const token = response.accessToken || response.token
@@ -123,26 +120,6 @@ export const authService = {
       role: normalizeRole(payload.role || mappedUser.role),
       nome: mappedUser.nome || 'Administrador',
       email: mappedUser.email || email,
-    }
-    const session: LoginResponse = { token, refreshToken: response.refreshToken, usuario }
-    await authService.setSession(session)
-    return session
-  },
-  async verifyAdminMfa(challengeId: string): Promise<LoginResponse> {
-    const response = await api.post<LoginApiResponse>('/auth/login/admin/verify', { challengeId, code: '000000' })
-    const token = response.accessToken || response.token
-    if (!token || !response.refreshToken) {
-      throw { response: { data: { error: 'Resposta de login invalida' } } }
-    }
-
-    const payload = decodeJwtPayload(token)
-    const mappedUser = normalizeUser(response.usuario || response.user)
-    const usuario: Usuario = {
-      ...mappedUser,
-      id: payload.sub || mappedUser.id,
-      role: normalizeRole(payload.role || mappedUser.role),
-      nome: mappedUser.nome || 'Administrador',
-      email: mappedUser.email,
     }
     const session: LoginResponse = { token, refreshToken: response.refreshToken, usuario }
     await authService.setSession(session)
