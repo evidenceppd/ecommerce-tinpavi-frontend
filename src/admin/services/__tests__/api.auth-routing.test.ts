@@ -47,6 +47,24 @@ function buildCustomerToken(expOffsetSeconds = 3600) {
   })
 }
 
+function buildUnpaddedUserToken(expOffsetSeconds = 3600) {
+  for (let length = 0; length < 20; length += 1) {
+    const payload = {
+      sub: 'user-1',
+      role: 'ADMIN',
+      t: 'USER',
+      exp: Math.floor(Date.now() / 1000) + expOffsetSeconds,
+      extra: '.'.repeat(length),
+    }
+    const token = buildToken(payload)
+    const payloadSegment = token.split('.')[1]
+    if (payloadSegment.length % 4 !== 0) {
+      return token
+    }
+  }
+  throw new Error('Unable to build unpadded token for test')
+}
+
 function jsonResponse(status: number, payload: unknown) {
   return new Response(JSON.stringify(payload), {
     status,
@@ -104,6 +122,34 @@ describe('api auth routing', () => {
 
   it('keeps admin endpoints bound to admin_token', async () => {
     const adminToken = buildUserToken()
+
+    mockAuthDB.get.mockImplementation(async (key) => {
+      if (key === 'admin_token') return adminToken
+      return null
+    })
+
+    getFetchMock().mockResolvedValueOnce(
+      jsonResponse(200, {
+        success: true,
+        data: [],
+      }),
+    )
+
+    const api = await loadApi()
+    await api.get('/admin/products')
+
+    expect(mockAuthDB.get).toHaveBeenCalledWith('admin_token')
+    expect(mockAuthDB.get).not.toHaveBeenCalledWith('customer_token')
+
+    const [, init] = getFetchMock().mock.calls[0] as [string, RequestInit]
+    const authHeader = (init.headers as Headers).get('Authorization')
+    expect(authHeader).toBe(`Bearer ${adminToken}`)
+  })
+
+  it('keeps admin endpoints bound to admin_token when the JWT payload is unpadded base64url', async () => {
+    const adminToken = buildUnpaddedUserToken()
+    const payloadSegment = adminToken.split('.')[1]
+    expect(payloadSegment.length % 4).not.toBe(0)
 
     mockAuthDB.get.mockImplementation(async (key) => {
       if (key === 'admin_token') return adminToken

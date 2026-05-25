@@ -64,7 +64,8 @@ function decodeJwtPayload(token: string): JwtPayload {
 
   try {
     const base64 = payload.replace(/-/g, '+').replace(/_/g, '/')
-    const decoded = atob(base64)
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=')
+    const decoded = atob(padded)
     return JSON.parse(decoded) as JwtPayload
   } catch {
     return {}
