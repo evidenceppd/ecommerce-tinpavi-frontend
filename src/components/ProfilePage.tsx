@@ -41,9 +41,29 @@ const profileSteps = [
 type ProfileStep = (typeof profileSteps)[number]["id"];
 type ProfileEditableField = "name" | "email" | "phone" | "company" | "document" | "address";
 
+type SavedPaymentCard = {
+  id: string;
+  brand: string;
+  holderName: string;
+  last4: string;
+  expiry: string;
+  document: string;
+  isDefault: boolean;
+};
+
+type PaymentCardForm = {
+  number: string;
+  holderName: string;
+  expiry: string;
+  cvv: string;
+  document: string;
+  isDefault: boolean;
+};
+
 type PaymentModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  onSave: (card: PaymentCardForm) => void;
 };
 
 type Purchase = {
@@ -94,6 +114,47 @@ function getOrderItemsQuantity(order: Pedido) {
   return (order.items || []).reduce((total, item) => total + item.quantity, 0);
 }
 
+function getPaymentStorageKey(email: string) {
+  return `tinpavi:payment-cards:${email || "guest"}`;
+}
+
+function onlyDigits(value: string) {
+  return value.replace(/\D/g, "");
+}
+
+function formatCardNumber(value: string) {
+  return onlyDigits(value).slice(0, 19).replace(/(\d{4})(?=\d)/g, "$1 ");
+}
+
+function formatCardExpiry(value: string) {
+  const digits = onlyDigits(value).slice(0, 4);
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+}
+
+function detectCardBrand(cardNumber: string) {
+  const digits = onlyDigits(cardNumber);
+  if (/^4/.test(digits)) return "Visa";
+  if (/^(5[1-5]|2[2-7])/.test(digits)) return "Mastercard";
+  if (/^3[47]/.test(digits)) return "Amex";
+  if (/^(4011|4312|4389|4514|4576|5041|5067|509|6277|6362|6363)/.test(digits)) return "Elo";
+  return "Cartao";
+}
+
+function validatePaymentCardForm(form: PaymentCardForm): string | null {
+  const cardDigits = onlyDigits(form.number);
+  const docDigits = onlyDigits(form.document);
+  if (cardDigits.length < 13 || cardDigits.length > 19) return "Informe um numero de cartao valido.";
+  if (!form.holderName.trim()) return "Informe o nome impresso no cartao.";
+  if (!/^\d{2}\/\d{2}$/.test(form.expiry)) return "Informe a validade no formato MM/AA.";
+  const [monthText] = form.expiry.split("/");
+  const month = Number(monthText);
+  if (!Number.isInteger(month) || month < 1 || month > 12) return "Informe um mes de validade valido.";
+  if (onlyDigits(form.cvv).length < 3 || onlyDigits(form.cvv).length > 4) return "Informe um CVV valido.";
+  if (docDigits.length !== 11 && docDigits.length !== 14) return "Informe o CPF/CNPJ do titular.";
+  return null;
+}
+
 function useAnimatedModal(isOpen: boolean, onClose: () => void) {
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isClosing, setIsClosing] = useState(false);
@@ -138,10 +199,46 @@ function useAnimatedModal(isOpen: boolean, onClose: () => void) {
   return { shouldRender, isClosing };
 }
 
-function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
+function PaymentModal({ isOpen, onClose, onSave }: PaymentModalProps) {
   const { shouldRender, isClosing } = useAnimatedModal(isOpen, onClose);
+  const [form, setForm] = useState<PaymentCardForm>({
+    number: "",
+    holderName: "",
+    expiry: "",
+    cvv: "",
+    document: "",
+    isDefault: false,
+  });
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setForm({
+      number: "",
+      holderName: "",
+      expiry: "",
+      cvv: "",
+      document: "",
+      isDefault: false,
+    });
+    setMessage(null);
+  }, [isOpen]);
 
   if (!shouldRender) return null;
+
+  function updateForm<K extends keyof PaymentCardForm>(field: K, value: PaymentCardForm[K]) {
+    setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    const error = validatePaymentCardForm(form);
+    if (error) {
+      setMessage(error);
+      return;
+    }
+    onSave(form);
+  }
 
   return (
     <div
@@ -182,12 +279,15 @@ function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
           </button>
         </div>
 
-        <form className="grid gap-4 p-5 sm:grid-cols-2">
+        <form className="grid gap-4 p-5 sm:grid-cols-2" onSubmit={handleSubmit}>
           <label className="sm:col-span-2">
             <span className="mb-1.5 block text-sm font-bold text-gray-800">Número do cartão</span>
             <input
               type="text"
+              inputMode="numeric"
               placeholder="0000 0000 0000 0000"
+              value={form.number}
+              onChange={(event) => updateForm("number", formatCardNumber(event.target.value))}
               className="h-11 w-full rounded-md border border-gray-300 px-3 text-sm outline-none focus:border-[#F5C518]"
             />
           </label>
@@ -197,6 +297,8 @@ function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
             <input
               type="text"
               placeholder="Nome completo"
+              value={form.holderName}
+              onChange={(event) => updateForm("holderName", event.target.value.toUpperCase())}
               className="h-11 w-full rounded-md border border-gray-300 px-3 text-sm outline-none focus:border-[#F5C518]"
             />
           </label>
@@ -205,7 +307,10 @@ function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
             <span className="mb-1.5 block text-sm font-bold text-gray-800">Validade</span>
             <input
               type="text"
+              inputMode="numeric"
               placeholder="MM/AA"
+              value={form.expiry}
+              onChange={(event) => updateForm("expiry", formatCardExpiry(event.target.value))}
               className="h-11 w-full rounded-md border border-gray-300 px-3 text-sm outline-none focus:border-[#F5C518]"
             />
           </label>
@@ -213,8 +318,12 @@ function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
           <label>
             <span className="mb-1.5 block text-sm font-bold text-gray-800">CVV</span>
             <input
-              type="text"
+              type="password"
+              inputMode="numeric"
               placeholder="000"
+              maxLength={4}
+              value={form.cvv}
+              onChange={(event) => updateForm("cvv", onlyDigits(event.target.value).slice(0, 4))}
               className="h-11 w-full rounded-md border border-gray-300 px-3 text-sm outline-none focus:border-[#F5C518]"
             />
           </label>
@@ -223,15 +332,27 @@ function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
             <span className="mb-1.5 block text-sm font-bold text-gray-800">CPF/CNPJ do titular</span>
             <input
               type="text"
+              inputMode="numeric"
               placeholder="000.000.000-00"
+              value={form.document}
+              onChange={(event) => updateForm("document", onlyDigits(event.target.value).slice(0, 14))}
               className="h-11 w-full rounded-md border border-gray-300 px-3 text-sm outline-none focus:border-[#F5C518]"
             />
           </label>
 
           <label className="flex cursor-pointer items-start gap-2 text-sm text-gray-600 sm:col-span-2">
-            <input type="checkbox" className="mt-0.5 h-4 w-4 cursor-pointer accent-[#F5C518]" />
+            <input
+              type="checkbox"
+              checked={form.isDefault}
+              onChange={(event) => updateForm("isDefault", event.target.checked)}
+              className="mt-0.5 h-4 w-4 cursor-pointer accent-[#F5C518]"
+            />
             Salvar esse cartão como principal.
           </label>
+
+          {message && (
+            <p className="rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 sm:col-span-2">{message}</p>
+          )}
 
           <div className="grid gap-3 pt-2 sm:col-span-2 sm:grid-cols-2">
             <button
@@ -242,9 +363,8 @@ function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
               Cancelar
             </button>
             <button
-              type="button"
+              type="submit"
               className="h-11 cursor-pointer rounded-md bg-[#F5C518] text-sm font-bold text-black transition hover:bg-[#e6b800]"
-              onClick={onClose}
             >
               Salvar cartão
             </button>
@@ -497,6 +617,8 @@ export function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentCards, setPaymentCards] = useState<SavedPaymentCard[]>([]);
+  const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -576,6 +698,12 @@ export function ProfilePage() {
           address: customer.address ?? "",
           mfaEnabled: Boolean(customer.mfaEnabled),
         });
+        try {
+          const storedCards = localStorage.getItem(getPaymentStorageKey(customer.email ?? ""));
+          setPaymentCards(storedCards ? JSON.parse(storedCards) as SavedPaymentCard[] : []);
+        } catch {
+          setPaymentCards([]);
+        }
         setDefaultAddressId(customer.defaultAddress?.id ?? null);
         setAddressForm(mapAddressToForm(customer.defaultAddress ?? null));
 
@@ -780,6 +908,44 @@ export function ProfilePage() {
     const previousStep = profileSteps[Math.max(activeIndex - 1, 0)];
     setActiveStep(previousStep.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function persistPaymentCards(cards: SavedPaymentCard[]) {
+    setPaymentCards(cards);
+    localStorage.setItem(getPaymentStorageKey(profile.email), JSON.stringify(cards));
+  }
+
+  function handleSavePaymentCard(form: PaymentCardForm) {
+    const cardDigits = onlyDigits(form.number);
+    const nextCard: SavedPaymentCard = {
+      id: crypto.randomUUID(),
+      brand: detectCardBrand(form.number),
+      holderName: form.holderName.trim(),
+      last4: cardDigits.slice(-4),
+      expiry: form.expiry,
+      document: onlyDigits(form.document),
+      isDefault: form.isDefault || paymentCards.length === 0,
+    };
+    const nextCards = [
+      ...paymentCards.map((card) => ({ ...card, isDefault: nextCard.isDefault ? false : card.isDefault })),
+      nextCard,
+    ];
+    persistPaymentCards(nextCards);
+    setPaymentMessage("Cartao salvo com seguranca. Numero completo e CVV nao sao armazenados.");
+    setIsPaymentModalOpen(false);
+  }
+
+  function handleSetDefaultCard(cardId: string) {
+    persistPaymentCards(paymentCards.map((card) => ({ ...card, isDefault: card.id === cardId })));
+  }
+
+  function handleRemovePaymentCard(cardId: string) {
+    const remainingCards = paymentCards.filter((card) => card.id !== cardId);
+    if (remainingCards.length > 0 && !remainingCards.some((card) => card.isDefault)) {
+      remainingCards[0] = { ...remainingCards[0], isDefault: true };
+    }
+    persistPaymentCards(remainingCards);
+    setPaymentMessage("Cartao removido.");
   }
 
   return (
@@ -1050,11 +1216,55 @@ export function ProfilePage() {
                   </div>
                 </div>
 
+                {paymentCards.length === 0 ? (
                 <div className="mt-6 rounded-lg border border-dashed border-gray-200 py-10 text-center">
                   <CreditCard size={32} className="mx-auto text-gray-300" aria-hidden="true" />
                   <p className="mt-3 text-sm font-bold text-gray-500">Nenhum método de pagamento cadastrado</p>
                   <p className="mt-1 text-xs text-gray-400">Adicione um cartão para agilizar suas compras.</p>
                 </div>
+                ) : (
+                  <div className="mt-6 grid gap-3">
+                    {paymentCards.map((card) => (
+                      <div key={card.id} className="rounded-lg border border-gray-200 bg-white p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#fff4c2] text-black">
+                              <CreditCard size={20} aria-hidden="true" />
+                            </span>
+                            <div>
+                              <p className="text-sm font-bold text-gray-950">{card.brand} final {card.last4}</p>
+                              <p className="mt-0.5 text-xs text-gray-500">{card.holderName} - vence {card.expiry}</p>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {card.isDefault ? (
+                              <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700">Principal</span>
+                            ) : (
+                              <button
+                                type="button"
+                                className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-bold text-gray-700 transition hover:bg-gray-50"
+                                onClick={() => handleSetDefaultCard(card.id)}
+                              >
+                                Tornar principal
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              className="rounded-md border border-red-200 px-3 py-1.5 text-xs font-bold text-red-700 transition hover:bg-red-50"
+                              onClick={() => handleRemovePaymentCard(card.id)}
+                            >
+                              Remover
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {paymentMessage && (
+                  <p className="mt-4 rounded-md bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700">{paymentMessage}</p>
+                )}
 
                 <button
                   type="button"
@@ -1250,7 +1460,11 @@ export function ProfilePage() {
           )}
         </aside>
       </div>
-      <PaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} />
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        onSave={handleSavePaymentCard}
+      />
       {isMfaModalOpen && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4" role="dialog" aria-modal="true">
           <button
