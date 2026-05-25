@@ -161,18 +161,13 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
     setLoading(true)
     try {
       if (mfaChallenge) {
-        await authService.verifyAdminMfa(mfaChallenge.id, verificationCode)
-        onLogin()
-      } else {
-        const result = await authService.login(email, senha)
-        if ('mfaRequired' in result && result.mfaRequired) {
-          setMfaChallenge({ id: result.challengeId, emailMasked: result.emailMasked })
-          setVerificationCode('')
-          toast.info('Codigo enviado ao e-mail administrativo')
-          return
-        }
-        onLogin()
+        // MFA desativada no fluxo de login administrativo.
+        setMfaChallenge(null)
+        setVerificationCode('')
       }
+
+      await authService.login(email, senha)
+      onLogin()
     } catch (err: unknown) {
       const e = err as { response?: { data?: { error?: string } } }
       toast.error(e.response?.data?.error ?? 'Credenciais invalidas')
