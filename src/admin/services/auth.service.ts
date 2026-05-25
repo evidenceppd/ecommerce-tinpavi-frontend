@@ -104,8 +104,10 @@ export const authService = {
     const response = await api.post<LoginApiResponse>('/auth/login', { email, password: senha })
 
     if (response.mfaRequired) {
-      // MFA administrativo desativado: nao aceitar challenge sem tokens como login valido.
-      throw { response: { data: { error: 'Verificacao MFA administrativa desativada. Atualize o backend e tente novamente.' } } }
+      if (!response.challengeId) {
+        throw { response: { data: { error: 'Resposta de login invalida' } } }
+      }
+      return authService.verifyAdminMfa(response.challengeId)
     }
 
     const token = response.accessToken || response.token
@@ -126,7 +128,26 @@ export const authService = {
     await authService.setSession(session)
     return session
   },
-  // MFA administrativo desativado: a verificacao por codigo nao faz mais parte do fluxo do /admin.
+  async verifyAdminMfa(challengeId: string): Promise<LoginResponse> {
+    const response = await api.post<LoginApiResponse>('/auth/login/admin/verify', { challengeId, code: '000000' })
+    const token = response.accessToken || response.token
+    if (!token || !response.refreshToken) {
+      throw { response: { data: { error: 'Resposta de login invalida' } } }
+    }
+
+    const payload = decodeJwtPayload(token)
+    const mappedUser = normalizeUser(response.usuario || response.user)
+    const usuario: Usuario = {
+      ...mappedUser,
+      id: payload.sub || mappedUser.id,
+      role: normalizeRole(payload.role || mappedUser.role),
+      nome: mappedUser.nome || 'Administrador',
+      email: mappedUser.email,
+    }
+    const session: LoginResponse = { token, refreshToken: response.refreshToken, usuario }
+    await authService.setSession(session)
+    return session
+  },
   async logout(): Promise<void> {
     await authDB.clear()
     sessionStorage.removeItem('admin_usuario')
